@@ -1,0 +1,9 @@
+// Set and print start and final vertices of a graph
+
+g = load("skos");
+
+g = set_starts(g, {1, 2, 3, 4, 5});
+print(get_starts(g));  // prints {1, 2, 3, 4, 5}
+
+g = set_finals(g, {6, 7, 8, 9, 10});
+print(get_finals(g))  // prints {6, 7, 8, 9, 10}

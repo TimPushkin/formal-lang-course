@@ -34,7 +34,7 @@ jobs:
 
       - name: Generate parser
         working-directory: project/litegql/grammar
-        run: antlr4 LiteGQL.g4 -Dlanguage=Python3
+        run: antlr4 LiteGQL.g4 -visitor -Dlanguage=Python3
 
       - name: Test with pytest
         run: python ./scripts/run_tests.py

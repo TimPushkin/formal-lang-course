@@ -1,31 +1,13 @@
 import pytest
-from pyformlang import finite_automaton as fa
 from pyformlang import cfg as c
+from pyformlang import finite_automaton as fa
 from scipy.sparse import csr_array
 
-from project.rpq.fa_utils import graph_to_nfa
 from project.cfpq.rsm import Rsm
 from project.utils.bool_decomposition import BoolDecomposition
-from testing_utils import dot_str_to_graph
-from testing_utils import dot_str_to_nfa
-from testing_utils import load_test_data
-from testing_utils import load_test_ids
-
-
-def _dot_str_to_nfa(dot: str) -> fa.EpsilonNFA:
-    graph = dot_str_to_graph(dot)
-
-    start_states = set()
-    for node, is_start in graph.nodes.data("is_start", default=False):
-        if is_start == "True":
-            start_states.add(node)
-
-    final_states = set()
-    for node, is_final in graph.nodes.data("is_final", default=False):
-        if is_final == "True":
-            final_states.add(node)
-
-    return graph_to_nfa(graph, start_states, final_states)
+from tests.testing_utils import dot_str_to_nfa
+from tests.testing_utils import load_test_data
+from tests.testing_utils import load_test_ids
 
 
 def _dict_to_nfa_state_info(d: dict) -> BoolDecomposition.StateInfo:
@@ -57,7 +39,7 @@ class TestFromNfa:
         load_test_data(
             "TestFromNfa",
             lambda d: (
-                _dot_str_to_nfa(d["graph"]),
+                dot_str_to_nfa(d["graph"]),
                 [_dict_to_nfa_state_info(st) for st in d["expected_states"]],
             ),
             add_filename_suffix=True,
@@ -75,7 +57,7 @@ class TestFromNfa:
         "nfa, expected_adjs",
         load_test_data(
             "TestFromNfa",
-            lambda d: (_dot_str_to_nfa(d["graph"]), _dict_to_adjs(d["expected_adjs"])),
+            lambda d: (dot_str_to_nfa(d["graph"]), _dict_to_adjs(d["expected_adjs"])),
             add_filename_suffix=True,
         ),
         ids=load_test_ids("TestFromNfa", add_filename_suffix=True),

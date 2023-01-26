@@ -4,5 +4,5 @@
 
 ```shell
 pip install antlr4-tools  # На Windows может также потребоваться добавить ANTLR в PATH
-antlr4 LiteGQL.g4 -Dlanguage=Python3
+antlr4 LiteGQL.g4 -visitor -Dlanguage=Python3
 ```

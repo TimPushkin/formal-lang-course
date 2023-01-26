@@ -1,7 +1,9 @@
 from itertools import product
-from typing import Any, NamedTuple
+from typing import Any
+from typing import NamedTuple
 
 import pycubool as cb
+from pyformlang.finite_automaton import Epsilon
 from pyformlang.finite_automaton import EpsilonNFA
 
 from project.cfpq.rsm import Rsm
@@ -56,7 +58,8 @@ class BoolDecomposition:
         for n_from in transitions:
             for symbol, ns_to in transitions[n_from].items():
                 adj = adjs.setdefault(
-                    symbol.value, cb.Matrix.empty((len(states), len(states)))
+                    symbol.value if not isinstance(symbol, Epsilon) else symbol,
+                    cb.Matrix.empty((len(states), len(states))),
                 )
                 beg_index = next(i for i, s in enumerate(states) if s.data == n_from)
                 for n_to in ns_to if isinstance(ns_to, set) else {ns_to}:
@@ -89,7 +92,8 @@ class BoolDecomposition:
             for n_from in transitions:
                 for symbol, ns_to in transitions[n_from].items():
                     adj = adjs.setdefault(
-                        symbol.value, cb.Matrix.empty((len(states), len(states)))
+                        symbol.value if not isinstance(symbol, Epsilon) else symbol,
+                        cb.Matrix.empty((len(states), len(states))),
                     )
                     start_index = next(
                         i for i, s in enumerate(states) if s.data == (var, n_from)

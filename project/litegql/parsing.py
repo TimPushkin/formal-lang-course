@@ -1,13 +1,14 @@
-import antlr4
-import pydot
 from pathlib import Path
 
+import antlr4
+import pydot
+
 from project.litegql.grammar.LiteGQLLexer import LiteGQLLexer
-from project.litegql.grammar.LiteGQLParser import LiteGQLParser
 from project.litegql.grammar.LiteGQLListener import LiteGQLListener
+from project.litegql.grammar.LiteGQLParser import LiteGQLParser
 
 
-def _get_parser(inp: str) -> LiteGQLParser:
+def get_parser(inp: str) -> LiteGQLParser:
     chars = antlr4.InputStream(inp)
     lexer = LiteGQLLexer(chars)
     tokens = antlr4.CommonTokenStream(lexer)
@@ -15,19 +16,20 @@ def _get_parser(inp: str) -> LiteGQLParser:
 
 
 def check(inp: str) -> bool:
-    parser = _get_parser(inp)
+    parser = get_parser(inp)
     parser.removeErrorListeners()
     parser.prog()
     return parser.getNumberOfSyntaxErrors() == 0
 
 
 def save_parse_tree_as_dot(inp: str, path: Path | str):
-    parser = _get_parser(inp)
+    parser = get_parser(inp)
+    tree = parser.prog()
     if parser.getNumberOfSyntaxErrors() > 0:
         raise ValueError("Parsing failed")
     builder = _DotTreeBuilder()
     walker = antlr4.ParseTreeWalker()
-    walker.walk(builder, parser.prog())
+    walker.walk(builder, tree)
     if not builder.dot.write(str(path)):
         raise RuntimeError(f"Cannot save dot grammar to {path}")
 

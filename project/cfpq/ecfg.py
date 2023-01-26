@@ -1,6 +1,6 @@
-from pyformlang.cfg import Variable
-from pyformlang.cfg import Terminal
 from pyformlang.cfg import CFG
+from pyformlang.cfg import Terminal
+from pyformlang.cfg import Variable
 from pyformlang.regular_expression import Regex
 
 
@@ -25,7 +25,8 @@ class Ecfg:
         )
         variables.add(start_symbol)
 
-        productions: dict[Variable, Regex] = {}
+        # Ensure there is always a start production
+        productions: dict[Variable, Regex] = {start_symbol: Regex("")}
         for p in cfg.productions:
             body = Regex(" ".join(o.value for o in p.body) if len(p.body) > 0 else "$")
             if p.head in productions:

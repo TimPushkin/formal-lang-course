@@ -1,0 +1,8 @@
+// Get common labels of two graphs
+
+g1 = load("skos");
+g2 = load("generations");
+
+common_labels = filter({l -> l in get_labels(g2)}, get_labels(g1));
+
+print(common_labels)  // prints {range, inverseOf, type, first, rest}

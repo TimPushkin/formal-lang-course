@@ -1,0 +1,251 @@
+{
+  "test_cfg_from_file": [
+    {
+      "description": "no subgraphs",
+      "dot_text": "digraph S {}",
+      "expected_vertices": [0],
+      "expected_edges": []
+    },
+    {
+      "description": "single production",
+      "dot_text": "digraph S {subgraph S {1 -> 2 [label=a]}}",
+      "expected_vertices": [1, 2],
+      "expected_edges": [
+        [1, "a", 2]
+      ]
+    },
+    {
+      "description": "multiple productions",
+      "dot_text": "digraph S {subgraph S {1 -> 2 [label=A]; 2 -> 3 [label=S]; 3 -> 4 [label=B]; 1 -> 4}; subgraph A {5 -> 6 [label=a]}; subgraph B {7 -> 8 [label=b]}}",
+      "expected_vertices": [1, 2, 3, 4, 5, 6, 7, 8],
+      "expected_edges": [
+        [1, "<var>A", 2],
+        [2, "<var>S", 3],
+        [3, "<var>B", 4],
+        [1, "", 4],
+        [5, "a", 6],
+        [7, "b", 8]
+      ]
+    }
+  ],
+  "test_cfg_from_raw_str": [
+    {
+      "description": "empty",
+      "cfg_str": "",
+      "expected_vertices": [0],
+      "expected_labels": [],
+      "expected_reachables": []
+    },
+    {
+      "description": "epsilon",
+      "cfg_str": "S -> $",
+      "expected_vertices": [0],
+      "expected_labels": [],
+      "expected_reachables": [
+        [0, 0]
+      ]
+    },
+    {
+      "description": "single production",
+      "cfg_str": "S -> a b",
+      "expected_vertices": [0, 1, 2],
+      "expected_labels": ["a", "b"],
+      "expected_reachables": [
+        [0, 2]
+      ]
+    },
+    {
+      "description": "production with variable",
+      "cfg_str": "S -> a S b | a b",
+      "expected_vertices": [0, 1, 2, 3, 4, 5, 6],
+      "expected_labels": ["a", "b"],
+      "expected_reachables": [
+        [0, 3],
+        [4, 6]
+      ]
+    },
+    {
+      "description": "multiple variables",
+      "cfg_str": "S -> A S B | A B\nA -> a\nB -> b",
+      "expected_vertices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      "expected_labels": ["a", "b"],
+      "expected_reachables": [
+        [4, 6],
+        [7, 10]
+      ]
+    },
+    {
+      "description": "epsilon alternative",
+      "cfg_str": "S -> a S b | epsilon",
+      "expected_vertices": [0, 1, 2, 3, 4],
+      "expected_labels": ["a", "b"],
+      "expected_reachables": [
+        [0, 0],
+        [1, 4]
+      ]
+    },
+    {
+      "description": "transitive production",
+      "cfg_str": "S -> A\nA -> a",
+      "expected_vertices": [0, 1, 2, 3],
+      "expected_labels": ["a"],
+      "expected_reachables": [
+        [2, 3]
+      ]
+    },
+    {
+      "description": "long labels",
+      "cfg_str": "S -> some A more B C labels\nA -> l_\nB -> $\nC -> some",
+      "expected_vertices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      "expected_labels": ["some", "more", "labels", "l_"],
+      "expected_reachables": [
+        [5, 11]
+      ]
+    }
+  ],
+  "test_cfg_get_edges": [
+    {
+      "description": "empty",
+      "cfg_str": "",
+      "expected": []
+    },
+    {
+      "description": "epsilon",
+      "cfg_str": "S -> $",
+      "expected": []
+    },
+    {
+      "description": "single production",
+      "cfg_str": "S -> a b",
+      "expected": [
+        [0, "a", 1],
+        [1, "b", 2]
+      ]
+    },
+    {
+      "description": "production with variable",
+      "cfg_str": "S -> a S b",
+      "expected": [
+        [0, "a", 1],
+        [1, "<var>S", 2],
+        [2, "b", 3]
+      ]
+    }
+  ],
+  "test_cfg_star": [
+    {
+      "cfg_str": "",
+      "expected_boxes": {
+        "S": "epsilon",
+        "S_1": ""
+      }
+    },
+    {
+      "cfg_str": "S -> a",
+      "expected_boxes": {
+        "S": "a*",
+        "S_1": "a"
+      }
+    },
+    {
+      "cfg_str": "S -> a S b | a b",
+      "expected_boxes": {
+        "S": "(a S_1 b | a b)*",
+        "S_1": "a S_1 b | a b"
+      }
+    },
+    {
+      "cfg_str": "S -> A\nA -> a",
+      "expected_boxes": {
+        "S": "A_1*",
+        "S_1": "A_1",
+        "A_1": "a"
+      }
+    },
+    {
+      "cfg_str": "S -> LEFT middle RIGHT\nLEFT -> left\nRIGHT -> right",
+      "expected_boxes": {
+        "S": "(LEFT_1 middle RIGHT_1)*",
+        "S_1": "LEFT_1 middle RIGHT_1",
+        "LEFT_1": "left",
+        "RIGHT_1": "right"
+      }
+    }
+  ],
+  "TestCfgCombinations": [
+    {
+      "cfg1": "",
+      "cfg2": "",
+      "expected_boxes_concat": {
+        "S": "",
+        "S_1": "",
+        "S_2": ""
+      },
+      "expected_boxes_union": {
+        "S": "",
+        "S_1": "",
+        "S_2": ""
+      }
+    },
+    {
+      "cfg1": "S -> a b c",
+      "cfg2": "",
+      "expected_boxes_concat": {
+        "S": "",
+        "S_1": "a b c",
+        "S_2": ""
+      },
+      "expected_boxes_union": {
+        "S": "a b c",
+        "S_1": "a b c",
+        "S_2": ""
+      }
+    },
+    {
+      "cfg1": "",
+      "cfg2": "S -> a b c",
+      "expected_boxes_concat": {
+        "S": "",
+        "S_1": "",
+        "S_2": "a b c"
+      },
+      "expected_boxes_union": {
+        "S": "a b c",
+        "S_1": "",
+        "S_2": "a b c"
+      }
+    },
+    {
+      "cfg1": "S -> a S | a",
+      "cfg2": "S -> a S | a",
+      "expected_boxes_concat": {
+        "S": "(a S_1 | a) (a S_2 | a)",
+        "S_1": "a S_1 | a",
+        "S_2": "a S_2 | a"
+      },
+      "expected_boxes_union": {
+        "S": "a S_1 | a S_2 | a",
+        "S_1": "a S_1 | a",
+        "S_2": "a S_2 | a"
+      }
+    },
+    {
+      "cfg1": "S -> A B\nA -> B\nB -> B | epsilon",
+      "cfg2": "S -> something",
+      "expected_boxes_concat": {
+        "S": "A_1 B_1 something",
+        "S_1": "A_1 B_1",
+        "A_1": "B_1",
+        "B_1": "B_1 | epsilon",
+        "S_2": "something"
+      },
+      "expected_boxes_union": {
+        "S": "A_1 B_1 | something",
+        "S_1": "A_1 B_1",
+        "A_1": "B_1",
+        "B_1": "B_1 | epsilon",
+        "S_2": "something"
+      }
+    }
+  ]
+}

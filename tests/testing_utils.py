@@ -2,12 +2,18 @@ import inspect
 import json
 import pathlib
 from collections.abc import Callable
+from typing import Any
 from typing import TextIO
 from typing import TypeVar
 
 import networkx as nx
-from pyformlang import finite_automaton as fa
 import pydot
+from pyformlang import finite_automaton as fa
+from pytest import fixture
+
+from project.litegql.grammar.LiteGQLParser import LiteGQLParser
+from project.litegql.parsing import get_parser
+from project.rpq.fa_utils import iter_fa_transitions
 
 
 def _open_test_json(
@@ -22,17 +28,17 @@ def _open_test_json(
     return open(parent / "data" / f"{filename}.json")
 
 
-T_ = TypeVar("T_")
+_T = TypeVar("_T")
 
 
 def load_test_data(
     test_name: str,
-    transform: Callable[[dict], T_ | tuple | list[tuple]],
+    transform: Callable[[dict], _T | tuple | list[tuple]],
     *,
     data_filename: str | None = None,
     add_filename_suffix: bool = False,
     is_aggregated: bool = False,
-) -> list[T_] | list[tuple]:
+) -> list[_T] | list[tuple]:
     with _open_test_json(test_name, add_filename_suffix, data_filename) as f:
         test_datas = json.load(f)
     if not is_aggregated:
@@ -76,7 +82,7 @@ def dot_str_to_nfa(dot: str) -> fa.EpsilonNFA:
     # Convert string-represented epsilons in edges from dot files
     for _, _, data in graph.edges.data():
         if data["label"] == "epsilon":
-            data["label"] = fa.Epsilon
+            data["label"] = fa.Epsilon()
 
     return fa.EpsilonNFA.from_networkx(graph)
 
@@ -89,12 +95,53 @@ def are_equivalent(
     | fa.NondeterministicFiniteAutomaton
     | fa.EpsilonNFA,
 ) -> bool:
-    # pyformlang silently fails to check for equivalence automatas with no start state when minimized
-    # But we can say such automatas are equivalent since they accept no words
+    # pyformlang silently fails to check for equivalence automatas with no start state
+    # when minimized. But we can say such automatas are equivalent since they accept no
+    # words
     min1 = fa1.minimize()
     min2 = fa2.minimize()
     return (
         len(min1.start_states) == 0
         and len(min2.start_states) == 0
-        or fa1.is_equivalent_to(fa2)
+        or min1.is_equivalent_to(min2)
+        # Sometimes this works when the above does not
+        or min1.get_difference(min2).is_empty()
     )
+
+
+@fixture
+def content_file_path(request, tmp_path: pathlib.Path) -> pathlib.Path:
+    path = tmp_path / "test_file"
+    with open(path, "w") as f:
+        f.write(request.param)
+    return path
+
+
+def reconstruct_if_equal_nodes(
+    nfa1: fa.NondeterministicFiniteAutomaton,
+    nfa2: fa.NondeterministicFiniteAutomaton,
+    get_next: Callable[[Any], Any],
+) -> fa.NondeterministicFiniteAutomaton:
+    mapping = {}
+    for s in nfa2.states:
+        new_s = s
+        while new_s in nfa1.states or new_s in nfa2.states or new_s in mapping.values():
+            new_s = fa.State(get_next(new_s.value))
+        mapping[s] = new_s
+
+    new_nfa2 = fa.NondeterministicFiniteAutomaton(
+        start_state={mapping[s] for s in nfa2.start_states},
+        final_states={mapping[s] for s in nfa2.final_states},
+    )
+    for s_from, symb, s_to in iter_fa_transitions(nfa2):
+        new_nfa2.add_transition(mapping[s_from], symb, mapping[s_to])
+    return new_nfa2
+
+
+def fail(*_args, **_kwargs):
+    assert False
+
+
+@fixture(name="ctx")
+def expr_ctx(request) -> LiteGQLParser.ExprContext:
+    return get_parser(request.param).expr()

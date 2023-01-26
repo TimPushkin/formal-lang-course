@@ -11,7 +11,14 @@ stmt =
 
 expr =
     Var of string                // переменные
-  | Val of val                   // константы
+  | Int of int
+  | Bool of bool
+  | String of string             // регулярное выражение, интерпретируемое как единый символ
+  | Reg of string                // строковое регулярное выражение, где *, |, . и др. интерпретируются соответствующим образом
+  | Cfg of string                // строковая КС-грамматика
+  | Set of expr list             // множество элементов одного типа
+  | Pair of expr * expr          // пара
+  | Edge of expr * expr * expr   // ребро из двух элемнтов и метки
   | SetStarts of expr * expr     // задать множество стартовых состояний
   | SetFinals of expr * expr     // задать множество финальных состояний
   | AddStarts of expr * expr     // добавить состояния в множество стартовых
@@ -30,16 +37,6 @@ expr =
   | Union of expr * expr         // объединение языков
   | Star of expr                 // замыкание языков (звезда Клини)
   | Contains of expr * expt      // проверка на вхождение элемента в множество
-  | Set of expr list             // множество элементов одного типа
-  | Pair of expr * expr          // пара
-  | Edge of expr * expr * expr   // ребро из двух элемнтов и метки
-
-val =
-    Int of int
-  | Bool of bool
-  | String of string  // регулярное выражение, интерпретируемое как единый символ
-  | Reg of string     // строковое регулярное выражение, где *, |, . и др. интерпретируются соответствующим образом
-  | Cfg of string     // строковая КС-грамматика
 
 lambda = pattern * expr
 
@@ -61,7 +58,10 @@ stmt ->
 
 expr ->
     ID                                  // var
-  | INT | BOOL | STR | REG | CFG        // val
+  | INT | BOOL | STR | REG | CFG
+  | '{' (expr (',' expr)*)? '}'         // Set
+  | '(' expr ',' expr ')'               // Pair
+  | '(' expr ',' expr ',' expr ')'      // Edge
   | 'set_starts' '(' expr ',' expr ')'
   | 'set_finals' '(' expr ',' expr ')'
   | 'add_starts' '(' expr ',' expr ')'
@@ -80,9 +80,6 @@ expr ->
   | expr '|' expr                       // Union
   | expr '*'                            // Star
   | expr 'in' expr                      // Contains
-  | '{' (expr (',' expr)*)? '}'         // Set
-  | '(' expr ',' expr ')'               // Pair
-  | '(' expr ',' expr ',' expr ')'      // Edge
   | '(' expr ')'                        // вложенное выражение
 
 lambda -> '{' pattern '->' expr '}'

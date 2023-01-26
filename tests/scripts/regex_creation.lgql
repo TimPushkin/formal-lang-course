@@ -1,0 +1,4 @@
+// Create regular expression dynamically
+
+r = "start" . ("mid1" | "mid2")* . "ending";
+print(r)  // prints Reg[Int]($.((((start.mid1).((mid1)*.ending))|(start.ending))|((((start.mid1).((mid1)*.mid2))|(start.mid2)).((((mid1.((mid1)*.mid2))|mid2))*.(ending|(mid1.((mid1)*.ending)))))))

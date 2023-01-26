@@ -1,10 +1,12 @@
-import pytest
 from pathlib import Path
+
+import pytest
 from pyformlang import cfg as c
 
 from project.cfpq import cfg_utils
-from testing_utils import load_test_data
-from testing_utils import load_test_ids
+from tests.testing_utils import content_file_path  # noqa
+from tests.testing_utils import load_test_data
+from tests.testing_utils import load_test_ids
 
 
 def _assert_equal_cfgs(cfg1: c.CFG, cfg2: c.CFG):
@@ -12,19 +14,8 @@ def _assert_equal_cfgs(cfg1: c.CFG, cfg2: c.CFG):
     assert cfg1.productions == cfg2.productions
 
 
-@pytest.fixture
-def cfg_file_path(request, tmp_path: Path) -> Path:
-    cfg_text = request.param
-    assert isinstance(cfg_text, str)
-
-    path = tmp_path / "test_cfg.txt"
-    with open(path, "w") as f:
-        f.write(cfg_text)
-    return path
-
-
 @pytest.mark.parametrize(
-    "cfg_file_path, start, expected",
+    "content_file_path, start, expected",
     load_test_data(
         "test_cfg_utils",
         lambda d: (
@@ -38,14 +29,14 @@ def cfg_file_path(request, tmp_path: Path) -> Path:
             else c.CFG.from_text(d["cfg_text"]),
         ),
     ),
-    indirect=["cfg_file_path"],
+    indirect=["content_file_path"],
     ids=load_test_ids("test_cfg_utils"),
 )
-def test_read_cfg(cfg_file_path: Path, start: str, expected: c.CFG):
+def test_read_cfg(content_file_path: Path, start: str, expected: c.CFG):
     actual = (
-        cfg_utils.read_cfg(cfg_file_path, start)
+        cfg_utils.read_cfg(content_file_path, start)
         if start is not None
-        else cfg_utils.read_cfg(cfg_file_path)
+        else cfg_utils.read_cfg(content_file_path)
     )
 
     _assert_equal_cfgs(actual, expected)

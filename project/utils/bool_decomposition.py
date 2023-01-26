@@ -1,10 +1,14 @@
 from itertools import product
-from typing import Any, NamedTuple
+from typing import Any
+from typing import NamedTuple
+from typing import TYPE_CHECKING
 
+from pyformlang.finite_automaton import Epsilon
 from pyformlang.finite_automaton import EpsilonNFA
 from scipy import sparse
 
-from project.cfpq.rsm import Rsm
+if TYPE_CHECKING:
+    from project.cfpq.rsm import Rsm
 
 
 class BoolDecomposition:
@@ -56,7 +60,7 @@ class BoolDecomposition:
         for n_from in transitions:
             for symbol, ns_to in transitions[n_from].items():
                 adj = adjs.setdefault(
-                    symbol.value,
+                    symbol.value if not isinstance(symbol, Epsilon) else symbol,
                     sparse.dok_array((len(states), len(states)), dtype=bool),
                 )
                 start_index = next(i for i, s in enumerate(states) if s.data == n_from)
@@ -70,7 +74,7 @@ class BoolDecomposition:
         return cls(states, adjs)
 
     @classmethod
-    def from_rsm(cls, rsm: Rsm, sort_states: bool = False) -> "BoolDecomposition":
+    def from_rsm(cls, rsm: "Rsm", sort_states: bool = False) -> "BoolDecomposition":
         # Construct states with respect to box variables, removing duplicates
         states = list(
             {
@@ -93,7 +97,7 @@ class BoolDecomposition:
             for n_from in transitions:
                 for symbol, ns_to in transitions[n_from].items():
                     adj = adjs.setdefault(
-                        symbol.value,
+                        symbol.value if not isinstance(symbol, Epsilon) else symbol,
                         sparse.dok_array((len(states), len(states)), dtype=bool),
                     )
                     start_index = next(

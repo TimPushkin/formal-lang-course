@@ -1,0 +1,11 @@
+// Regular path query
+
+g = set_starts(load("input/two_cycles.dot"), {2});
+query = r"a | b";
+
+reachables = map(
+    { ((st, _), (fn, _)) -> (st, fn) },
+    get_reachables(g & query)
+);
+
+print(reachables)  // prints {(2, 3), (2, 0)}

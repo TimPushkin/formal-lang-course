@@ -3,44 +3,48 @@ grammar LiteGQL;
 prog : (COMMENT? SEMI)* (stmt ((COMMENT? SEMI)+ stmt)*)? (COMMENT? SEMI)* EOF ;
 
 stmt :
-    PRINT LPAREN expr RPAREN
-  | ID EQUALS expr
+    PRINT LPAREN expr RPAREN                  # print
+  | ID EQUALS expr                            # bind
   ;
 
 expr :
-    SET_STARTS LPAREN expr COMMA expr RPAREN
-  | SET_FINALS LPAREN expr COMMA expr RPAREN
-  | ADD_STARTS LPAREN expr COMMA expr RPAREN
-  | ADD_FINALS LPAREN expr COMMA expr RPAREN
-  | GET_STARTS LPAREN expr RPAREN
-  | GET_FINALS LPAREN expr RPAREN
-  | GET_REACHABLES LPAREN expr RPAREN
-  | GET_VERTICES LPAREN expr RPAREN
-  | GET_EDGES LPAREN expr RPAREN
-  | GET_LABELS LPAREN expr RPAREN
-  | MAP LPAREN lambda COMMA expr RPAREN
-  | FILTER LPAREN lambda COMMA expr RPAREN
-  | LOAD LPAREN expr RPAREN
-  | INT | BOOL | STR | REG | CFG              // val
-  | ID                                        // var
-  | LCURLY (expr (COMMA expr)*)? RCURLY       // Set
-  | LPAREN expr COMMA expr RPAREN             // Pair
-  | LPAREN expr COMMA expr COMMA expr RPAREN  // Edge
-  | expr ASTER                                // Star
-  | expr DOT expr                             // Concat
-  | expr AMPER expr                           // Intersect
-  | expr VLINE expr                           // Union
-  | expr IN expr                              // Contains
-  | LPAREN expr RPAREN                        // вложенное выражение
+    SET_STARTS LPAREN expr COMMA expr RPAREN  # setStarts
+  | SET_FINALS LPAREN expr COMMA expr RPAREN  # setFinals
+  | ADD_STARTS LPAREN expr COMMA expr RPAREN  # addStarts
+  | ADD_FINALS LPAREN expr COMMA expr RPAREN  # addFinals
+  | GET_STARTS LPAREN expr RPAREN             # getStarts
+  | GET_FINALS LPAREN expr RPAREN             # getFinals
+  | GET_REACHABLES LPAREN expr RPAREN         # getReachables
+  | GET_VERTICES LPAREN expr RPAREN           # getVertices
+  | GET_EDGES LPAREN expr RPAREN              # getEdges
+  | GET_LABELS LPAREN expr RPAREN             # getLabels
+  | MAP LPAREN lambda COMMA expr RPAREN       # map
+  | FILTER LPAREN lambda COMMA expr RPAREN    # filter
+  | LOAD LPAREN expr RPAREN                   # load
+  | INT                                       # int
+  | BOOL                                      # bool
+  | STR                                       # string
+  | REG                                       # reg
+  | CFG                                       # cfg
+  | ID                                        # var
+  | LCURLY (expr (COMMA expr)*)? RCURLY       # set
+  | LPAREN expr COMMA expr RPAREN             # pair
+  | LPAREN expr COMMA expr COMMA expr RPAREN  # edge
+  | expr ASTER                                # star
+  | expr DOT expr                             # concat
+  | expr AMPER expr                           # intersect
+  | expr VLINE expr                           # union
+  | expr IN expr                              # contains
+  | LPAREN expr RPAREN                        # parens
   ;
 
 lambda : LCURLY pattern RARROW expr RCURLY ;
 
 pattern :
-    UNDER
-  | ID
-  | LPAREN pattern COMMA pattern RPAREN
-  | LPAREN pattern COMMA pattern COMMA pattern RPAREN
+    UNDER                                              # wildcard
+  | ID                                                 # name
+  | LPAREN pattern COMMA pattern RPAREN                # unpair
+  | LPAREN pattern COMMA pattern COMMA pattern RPAREN  # unedge
   ;
 
 SEMI : ';' ;
@@ -77,13 +81,13 @@ MAP : 'map' ;
 FILTER : 'filter' ;
 LOAD : 'load' ;
 
-ID : [_a-zA-Z][_a-zA-Z0-9]* ;
-
 INT : '0' | '-'? [1-9][0-9]* ;
 BOOL : 'true' | 'false' ;
 STR : '"' .*? '"' ;
 REG : 'r' STR ;
 CFG : 'c' STR ;
+
+ID : [_a-zA-Z][_a-zA-Z0-9]* ;
 
 COMMENT : '//' ~[\r\n]* -> skip ;
 WS : [ \n\r\t\f]+ -> skip ;

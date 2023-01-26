@@ -4,7 +4,12 @@
       "description": "empty CFG",
       "cfg": "",
       "start": null,
-      "expected_productions": []
+      "expected_productions": [
+        {
+          "head": "S",
+          "body": ""
+        }
+      ]
     },
     {
       "description": "single production, default start",

@@ -1,0 +1,151 @@
+{
+  "TestAutomatonLikeCombinations": [
+    {
+      "reg": "",
+      "cfg": "",
+      "expected_boxes_intersect": {
+        "S": ""
+      },
+      "expected_boxes_concat_reg_cfg": {
+        "S": "",
+        "S_1": "",
+        "S_2": ""
+      },
+      "expected_boxes_concat_cfg_reg": {
+        "S": "",
+        "S_1": "",
+        "S_2": ""
+      },
+      "expected_boxes_union_reg_cfg": {
+        "S": "",
+        "S_1": "",
+        "S_2": ""
+      },
+      "expected_boxes_union_cfg_reg": {
+        "S": "",
+        "S_1": "",
+        "S_2": ""
+      }
+    },
+    {
+      "reg": "a b c",
+      "cfg": "",
+      "expected_boxes_intersect": {
+        "S": ""
+      },
+      "expected_boxes_concat_reg_cfg": {
+        "S": "",
+        "S_1": "a b c",
+        "S_2": ""
+      },
+      "expected_boxes_concat_cfg_reg": {
+        "S": "",
+        "S_1": "",
+        "S_2": "a b c"
+      },
+      "expected_boxes_union_reg_cfg": {
+        "S": "a b c",
+        "S_1": "a b c",
+        "S_2": ""
+      },
+      "expected_boxes_union_cfg_reg": {
+        "S": "a b c",
+        "S_1": "",
+        "S_2": "a b c"
+      }
+    },
+    {
+      "reg": "",
+      "cfg": "S -> a b c",
+      "expected_boxes_intersect": {
+        "S": ""
+      },
+      "expected_boxes_concat_reg_cfg": {
+        "S": "",
+        "S_1": "",
+        "S_2": "a b c"
+      },
+      "expected_boxes_concat_cfg_reg": {
+        "S": "",
+        "S_1": "a b c",
+        "S_2": ""
+      },
+      "expected_boxes_union_reg_cfg": {
+        "S": "a b c",
+        "S_1": "",
+        "S_2": "a b c"
+      },
+      "expected_boxes_union_cfg_reg": {
+        "S": "a b c",
+        "S_1": "a b c",
+        "S_2": ""
+      }
+    },
+    {
+      "reg": "a b c",
+      "cfg": "S -> a b c",
+      "expected_boxes_intersect": {
+        "S": "a b c"
+      },
+      "expected_boxes_concat_reg_cfg": {
+        "S": "a b c a b c",
+        "S_1": "a b c",
+        "S_2": "a b c"
+      },
+      "expected_boxes_concat_cfg_reg": {
+        "S": "a b c a b c",
+        "S_1": "a b c",
+        "S_2": "a b c"
+      },
+      "expected_boxes_union_reg_cfg": {
+        "S": "a b c",
+        "S_1": "a b c",
+        "S_2": "a b c"
+      },
+      "expected_boxes_union_cfg_reg": {
+        "S": "a b c",
+        "S_1": "a b c",
+        "S_2": "a b c"
+      }
+    },
+    {
+      "reg": "a*",
+      "cfg": "S -> A S B | epsilon\nA -> a\nB -> b",
+      "expected_boxes_intersect": {
+        "S": "epsilon",
+        "S_1": "epsilon",
+        "S_2": "epsilon",
+        "A": "a",
+        "B": ""
+      },
+      "expected_boxes_concat_reg_cfg": {
+        "S": "a* (A_2 S_2 B_2 | epsilon)",
+        "S_1": "a*",
+        "S_2": "A_2 S_2 B_2 | epsilon",
+        "A_2": "a",
+        "B_2": "b"
+      },
+      "expected_boxes_concat_cfg_reg": {
+        "S": "(A_1 S_1 B_1 | epsilon) a*",
+        "S_1": "A_1 S_1 B_1 | epsilon",
+        "A_1": "a",
+        "B_1": "b",
+        "S_2": "a*"
+      },
+      "expected_boxes_union_reg_cfg": {
+        "S": "a* | A_2 S_2 B_2 | epsilon",
+        "S_1": "a*",
+        "S_2": "A_2 S_2 B_2 | epsilon",
+        "A_2": "a",
+        "B_2": "b"
+      },
+      "expected_boxes_union_cfg_reg": {
+        "S": "A_1 S_1 B_1 | epsilon | a*",
+        "S_1": "A_1 S_1 B_1 | epsilon",
+        "A_1": "a",
+        "B_1": "b",
+        "S_2": "a*"
+      }
+    }
+  ]
+}

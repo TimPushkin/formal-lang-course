@@ -1,0 +1,171 @@
+{
+  "test_reg_from_file": [
+    {
+      "description": "two edges, one w/ and one w/o a label",
+      "dot_text": "digraph {1; 2; 3; 1 -> 2 [label=abc]; 2 -> 3}",
+      "expected_vertices": [1, 2, 3],
+      "expected_edges": [
+        [1, "abc", 2],
+        [2, "", 3]
+      ],
+      "expected_reachables": [
+        [1, 1],
+        [1, 2],
+        [1, 3],
+        [2, 2],
+        [2, 3],
+        [3, 3]
+      ]
+    },
+    {
+      "description": "two cycles",
+      "dot_text": "digraph {0; 1; 2; 3; 0 -> 1 [label=a]; 1 -> 2 [label=a]; 2 -> 0 [label=a]; 2 -> 3 [label=b]; 3 -> 2 [label=b]}",
+      "expected_vertices": [0, 1, 2, 3],
+      "expected_edges": [
+        [0, "a", 1],
+        [1, "a", 2],
+        [2, "a", 0],
+        [2, "b", 3],
+        [3, "b", 2]
+      ],
+      "expected_reachables": [
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [1, 0],
+        [1, 1],
+        [1, 2],
+        [1, 3],
+        [2, 0],
+        [2, 1],
+        [2, 2],
+        [2, 3],
+        [3, 0],
+        [3, 1],
+        [3, 2],
+        [3, 3]
+      ]
+    }
+  ],
+  "test_reg_from_raw_str": [
+    {
+      "description": "empty",
+      "regex_str": "",
+      "expected_labels": []
+    },
+    {
+      "description": "single symbol",
+      "regex_str": "a",
+      "expected_labels": ["a"]
+    },
+    {
+      "description": "regex with epsilon",
+      "regex_str": "first (second | third)* epsilon",
+      "expected_labels": ["first", "second", "third"]
+    }
+  ],
+  "test_reg_from_dataset": ["skos", "ls", "pizza"],
+  "test_reg_star": [
+    {
+      "reg": "",
+      "expected_star": "epsilon"
+    },
+    {
+      "reg": "a",
+      "expected_star": "a*"
+    },
+    {
+      "reg": "a*",
+      "expected_star": "a*"
+    },
+    {
+      "reg": "epsilon",
+      "expected_star": "epsilon"
+    },
+    {
+      "reg": "a | b",
+      "expected_star": "(a | b)*"
+    },
+    {
+      "reg": "a* | epsilon",
+      "expected_star": "a*"
+    },
+    {
+      "reg": "(none | one | many) words*",
+      "expected_star": "((none | one | many) words*)*"
+    }
+  ],
+  "TestRegCombinations": [
+    {
+      "reg1": "",
+      "reg2": "",
+      "expected_intersect": "",
+      "expected_concat": "",
+      "expected_union": ""
+    },
+    {
+      "reg1": "a b c",
+      "reg2": "",
+      "expected_intersect": "",
+      "expected_concat": "",
+      "expected_union": "a b c"
+    },
+    {
+      "reg1": "",
+      "reg2": "a b c",
+      "expected_intersect": "",
+      "expected_concat": "",
+      "expected_union": "a b c"
+    },
+    {
+      "reg1": "a b c",
+      "reg2": "epsilon",
+      "expected_intersect": "",
+      "expected_concat": "a b c",
+      "expected_union": "a b c | epsilon"
+    },
+    {
+      "reg1": "epsilon",
+      "reg2": "a b c",
+      "expected_intersect": "",
+      "expected_concat": "a b c",
+      "expected_union": "epsilon | a b c"
+    },
+    {
+      "reg1": "a",
+      "reg2": "b",
+      "expected_intersect": "",
+      "expected_concat": "a b",
+      "expected_union": "a | b"
+    },
+    {
+      "reg1": "a",
+      "reg2": "a",
+      "expected_intersect": "a",
+      "expected_concat": "a a",
+      "expected_union": "a"
+    },
+    {
+      "reg1": "a | b",
+      "reg2": "b | c",
+      "expected_intersect": "b",
+      "expected_concat": "a b | a c | b b | b c",
+      "expected_union": "a | b | c"
+    },
+    {
+      "reg1": "a* (b | c)*",
+      "reg2": "a | c",
+      "expected_intersect": "a | c",
+      "expected_concat": "a* (b | c)* (a | c)",
+      "expected_union": "a* (b | c)*"
+    },
+    {
+      "reg1": "(none | one | many) words*",
+      "reg2": "words",
+      "expected_intersect": "",
+      "expected_concat": "(none | one | many) words words*",
+      "expected_union": "((none | one | many) words*) | words"
+    }
+  ]
+}
